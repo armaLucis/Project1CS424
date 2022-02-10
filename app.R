@@ -16,6 +16,11 @@ library(jpeg)
 library(grid)
 library(leaflet)
 library(scales)
+library(DT)
+
+require(scales)
+options(scipen=10000)
+
 
 temp = list.files(pattern="*.csv")
 allData2 <- lapply(temp, read.csv)
@@ -32,6 +37,8 @@ allData$date <- lubridateDate
 allData$month <- month(lubridateDate)
 allData$day <- day(lubridateDate)
 allData$year <- year(lubridateDate)
+
+allData$weekday <- weekdays(allData$date)
 
 dfUICHalsted <- subset(allData, stationname == "UIC-Halsted")
 dfOhare <- subset(allData, stationname == "O'Hare Airport")
@@ -65,6 +72,11 @@ for(i in yearList) {
   #print(df1[m,2])
   m2=m2+1
 }
+
+months <- month.abb
+months_no <- c(1:12)
+weekday_list <- c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
+
 
 
 # Define UI for application that draws a histogram
@@ -108,24 +120,24 @@ ui <- dashboardPage(
   dashboardBody(
     fluidRow(
       column(3,
-             selectInput("select", h3("Select box"), 
-                         choices = list("Choice 1" = 1, "Choice 2" = 2,
-                                        "Choice 3" = 3), selected = 1)
+             selectInput("Year1", h3("Select Year"), 
+                         choices = list("2001" = 2001, "2010" = 2010,
+                                        "2021" = 2021), selected = 2021)
              ),
       column(3,
-             selectInput("select", h3("Select box"), 
-                         choices = list("Choice 1" = 1, "Choice 2" = 2,
+             selectInput("select1", h3("Select box"), 
+                         choices = list("UIC-Halsted" = 1, "O'hare Airport" = 2,
                                         "Choice 3" = 3), selected = 1)
       ),
       column(3,
-             selectInput("select", h3("Select box"),
-                         choices = list("Choice 1" = 1, "Choice 2" = 2,
-                                        "Choice 3" = 3), selected = 1)
+             selectInput("Year2", h3("Select Year"),
+                         choices = list("2001" = 2001, "2010" = 2010,
+                                        "2021" = 2021), selected = 2021)
       ),
       column(3,
-             selectInput("select", h3("Select box"),
-                         choices = list("Choice 1" = 1, "Choice 2" = 2,
-                                        "Choice 3" = 3), selected = 1)
+             selectInput("select2", h3("Select box"),
+                         choices = list("UIC-Halsted" = 1, "O'hare Airport" = 2,
+                                        "Choice 3" = 3), selected = 2)
       ),
     ),
     fluidRow(
@@ -184,55 +196,199 @@ ui <- dashboardPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  #theme_set(theme_grey(base_size = 14)) 
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
+
+    # output$distPlot <- renderPlot({
+    #     # generate bins based on input$bins from ui.R
+    #     x    <- faithful[, 2]
+    #     bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    # 
+    #     # draw the histogram with the specified number of bins
+    #     hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    # })
     
+    # justOneYearReactive1 <- reactive({subset(allData, allData$year == input$Year1 & allData$stationname ==  "UIC-Halsted")})
+    # justOneYearReactive2 <- reactive({subset(allData, allData$year == input$Year2 & allData$stationname == "O'Hare Airport")})
+  
+  justOneYearReactive1 <- reactive({
+    nameOfPlace = "UIC-Halsted"
+    if(input$select1 == 1){
+      nameOfPlace = "UIC-Halsted"
+    } else {
+      nameOfPlace = "O'Hare Airport"
+    }
+   # print(nameOfPlace)
+    subset(allData, allData$year == input$Year1 & allData$stationname == nameOfPlace)
+    })
+  justOneYearReactive2 <- reactive({
+    nameOfPlace = "O'Hare Airport"
+    if(input$select2 == 2){
+      nameOfPlace = "O'Hare Airport"
+    } else {
+      nameOfPlace = "UIC-Halsted"
+    }
+   # print(nameOfPlace)
+    subset(allData, allData$year == input$Year2 & allData$stationname == nameOfPlace)
+    })
+  
+  # justOneYearReactive3 <- reactive({
+  #   nameOfPlace = "O'Hare Airport"
+  #   if(input$select2 == 2){
+  #     nameOfPlace = "O'Hare Airport"
+  #   } else {
+  #     nameOfPlace = "UIC-Halsted"
+  #   }
+  #   # print(nameOfPlace)
+  #   subset(allData, allData$year == input$Year2 & allData$stationname == nameOfPlace)
+  # })
+  
+  
+
     output$hist1 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
-    })
+      if(input$select1 == 1) {
+        ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+      } else {
+        # require(scales)
+        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+      }
+      })
     
     
     output$hist2 <- renderPlot({
-      #newYears <-  justOneYearReactive()
-      ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
+      ny1 <- justOneYearReactive1()
+      
+      
+      df3 <- data.frame(
+        Months = months,
+        Months_no = months_no,
+        Entries = c(0)
+      )
+      df3$Months <- factor(df3$Months, levels = month.abb)
+      
+      
+        m3 = 1
+        for(i in months_no) {
+          ny1Subset <- subset(ny1, month == i)
+          #print(ny1Subset)
+          #sum(dfUICHalsted$rides)
+          sumEntries <- sum(ny1Subset$rides)
+          #print(sumEntries)
+          df3[m3,3] = sumEntries
+          #print(df1[m,2])
+          m3=m3+1
+        }
+        ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+        
+        
     })
     
     output$hist3 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
+      ny1 <- justOneYearReactive1()
+
+      df4 <- data.frame(
+        Weekday = weekday_list,
+        Entries = c(0)
+      )
+      df4$Weekday <- factor(df4$Weekday, levels = weekday_list, labels = c("Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"))
+      m4 = 1
+      for(i in weekday_list) {
+        weekday1Subset <- subset(ny1, weekday == i)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(weekday1Subset$rides)
+        df4[m4,2] = sumEntries
+        m4=m4+1
+      }
+      
+      ggplot(df4, aes(x=Weekday, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+      
+      #ny1 <- justOneYearReactive1()
+     # ggplot(ny1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
     
     output$hist4 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
+      ny1 <- justOneYearReactive1()
+     
+      ggplot(ny1, aes(x=date, y=rides))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
     
     output$hist5 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
+      #ny2 <- justOneYearReactive2()
+      if(input$select2 == 2) {
+        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+      } else {
+        ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+      }
+      #ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
     
     
     output$hist6 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
+      ny1 <- justOneYearReactive2()
+      
+      
+      df3 <- data.frame(
+        Months = months,
+        Months_no = months_no,
+        Entries = c(0)
+      )
+      df3$Months <- factor(df3$Months, levels = month.abb)
+      m3 = 1
+      for(i in months_no) {
+        ny1Subset <- subset(ny1, month == i)
+        #print(ny1Subset)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(ny1Subset$rides)
+        #print(sumEntries)
+        df3[m3,3] = sumEntries
+        #print(df1[m,2])
+        m3=m3+1
+      }
+      
+      ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+        
+      #ny2 <- justOneYearReactive2()
+      #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
 
     output$hist7 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
+      ny1 <- justOneYearReactive2()
+      
+      
+      df4 <- data.frame(
+        Weekday = weekday_list,
+        Entries = c(0)
+      )
+      df4$Weekday <- factor(df4$Weekday, levels = weekday_list, labels = c("Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"))
+      m4 = 1
+      for(i in weekday_list) {
+        weekday1Subset <- subset(ny1, weekday == i)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(weekday1Subset$rides)
+        df4[m4,2] = sumEntries
+        m4=m4+1
+      }
+
+      ggplot(df4, aes(x=Weekday, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+        
+      #ny2 <- justOneYearReactive2()
+      #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
 
     output$hist8 <- renderPlot({
       #newYears <-  justOneYearReactive()
-      ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+ scale_y_continuous(limits=c(1100000,4553704),oob = rescale_none)
+      ny1 <- justOneYearReactive2()
+      
+      ggplot(ny1, aes(x=date, y=rides))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")  
+      
+      #ny2 <- justOneYearReactive2()
+      #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+ scale_y_continuous(limits=c(1100000,4553704),oob = rescale_none)
     })
 }
 
