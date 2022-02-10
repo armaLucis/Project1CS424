@@ -117,6 +117,8 @@ ui <- dashboardPage(
   # ),
   # dashboardBody(),
   dashboardBody(
+    tabsetPanel(
+    tabPanel("Home",
     fluidRow(
     column(12,
            h1("CTA Entries comparison between Stations from 2001-2021"),
@@ -201,7 +203,7 @@ ui <- dashboardPage(
     fluidRow(
       column(3,
              fluidRow(
-               box(title = "UIC-Halsted Entries from 2001-2021", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries from 2001-2021 for Station 1", solidHeader = TRUE, status = "primary", width = 12,
                    conditionalPanel(
                      condition = "input.chart1 == '1'",
                      plotOutput("hist1", height=400)
@@ -213,7 +215,7 @@ ui <- dashboardPage(
               )
              ),
              fluidRow(
-               box(title = "UIC-Halsted each day for 2021 ", solidHeader = TRUE, status = "primary", width = 12,
+              box(title = "Entries for Months for Station 1", solidHeader = TRUE, status = "primary", width = 12,
                    conditionalPanel(
                      condition = "input.chart1 == '1'",
                      plotOutput("hist2", height = 400)
@@ -227,7 +229,7 @@ ui <- dashboardPage(
       ),
       column(3,
              fluidRow(
-               box(title = "UIC-Halsted for each month for 2021", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries for Weekdays for Station 1", solidHeader = TRUE, status = "primary", width = 12,
                    conditionalPanel(
                      condition = "input.chart1 == '1'",
                      plotOutput("hist3", height = 400)
@@ -239,7 +241,7 @@ ui <- dashboardPage(
                )
              ),
              fluidRow(
-               box(title = "UIC-Halsted for each day of the week for 2021", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries throughout an Year for Station 1", solidHeader = TRUE, status = "primary", width = 12,
                    conditionalPanel(
                      condition = "input.chart1 == '1'",
                      plotOutput("hist4", height = 400)
@@ -253,7 +255,7 @@ ui <- dashboardPage(
       ),
       column(3,
              fluidRow(
-               box(title = "O'hare Entries from 2001-2021", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries from 2001-2021 for Station 2", solidHeader = TRUE, status = "danger", width = 12,
                    conditionalPanel(
                      condition = "input.chart2 == '1'",
                      plotOutput("hist5", height=400)
@@ -265,7 +267,7 @@ ui <- dashboardPage(
                )
              ),
              fluidRow(
-               box(title = "O'hare each day for 2021 ", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries for Months for Station 2", solidHeader = TRUE, status = "danger", width = 12,
                    conditionalPanel(
                      condition = "input.chart2 == '1'",
                      plotOutput("hist6", height=400)
@@ -279,7 +281,7 @@ ui <- dashboardPage(
       ),
       column(3,
              fluidRow(
-               box(title = "O'hare for each month for 2021", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries for Weekdays for Station 2", solidHeader = TRUE, status = "danger", width = 12,
                    conditionalPanel(
                      condition = "input.chart2 == '1'",
                      plotOutput("hist7", height=400)
@@ -291,7 +293,7 @@ ui <- dashboardPage(
                )
              ),
              fluidRow(
-               box(title = "O'hare each day of the week for 2021 ", solidHeader = TRUE, status = "primary", width = 12,
+               box(title = "Entries throughout an Year for Station 2", solidHeader = TRUE, status = "danger", width = 12,
                    conditionalPanel(
                      condition = "input.chart2 == '1'",
                      plotOutput("hist8", height=400)
@@ -303,8 +305,14 @@ ui <- dashboardPage(
                )
              ),
       ),
-    )
-  
+    ),
+    ),
+    tabPanel("Info",
+             column(6,
+                    h3("Hello World I..............$................$...................$........................."),
+             )
+             )
+  )
   )
 )
 
@@ -365,7 +373,7 @@ server <- function(input, output) {
       if(input$select1 == 1) {
           ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
       } else {
-          ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in O'hare Airport from 2001-2021")+scale_y_continuous(labels=comma)
+          ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in O'Hare Airport from 2001-2021")+scale_y_continuous(labels=comma)
         } 
       })
     
@@ -510,9 +518,9 @@ server <- function(input, output) {
       #newYears <-  justOneYearReactive()
       #ny2 <- justOneYearReactive2()
       if(input$select2 == 2) {
-        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in O'Hare Airpor from 2001-2021")+scale_y_continuous(labels=comma)
       } else {
-        ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+        ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
       }
       #ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
@@ -546,7 +554,7 @@ server <- function(input, output) {
       }
       
       titlePlot <- paste("Entries in Months for", ny1$stationname, "in", ny1$year, sep = " ")
-      ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Months", title=titlePlot)+scale_y_continuous(labels=comma)
+      ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Months", title=titlePlot)+scale_y_continuous(labels=comma)
         
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
@@ -599,7 +607,7 @@ server <- function(input, output) {
       }
 
       titlePlot <- paste("Entries in Weekdays for", ny1$stationname, "in", ny1$year, sep = " ")
-      ggplot(df4, aes(x=Weekday, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Weekday", title=titlePlot)+scale_y_continuous(labels=comma)
+      ggplot(df4, aes(x=Weekday, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Weekday", title=titlePlot)+scale_y_continuous(labels=comma)
         
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
@@ -631,7 +639,7 @@ server <- function(input, output) {
       ny1 <- justOneYearReactive2()
       
       titlePlot <- paste("Entries in throughout the year for", ny1$stationname, "in", ny1$year, sep = " ")
-      ggplot(ny1, aes(x=date, y=rides))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Throughout Year", title= titlePlot)+scale_y_continuous(labels=comma)
+      ggplot(ny1, aes(x=date, y=rides))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Throughout Year", title= titlePlot)+scale_y_continuous(labels=comma)
       
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+ scale_y_continuous(limits=c(1100000,4553704),oob = rescale_none)
