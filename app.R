@@ -103,7 +103,7 @@ weekday_list <- c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday",
 
 ui <- dashboardPage(
   dashboardHeader(title = "CS 424 Spring 2022 Project 1"),
-  dashboardSidebar(),
+  dashboardSidebar(collapsed = TRUE),
   # dashboardSidebar(disable = FALSE, collapsed = FALSE,
   # 
   #                  sidebarMenu(
@@ -228,36 +228,78 @@ ui <- dashboardPage(
       column(3,
              fluidRow(
                box(title = "UIC-Halsted for each month for 2021", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist3", height=400)
+                   conditionalPanel(
+                     condition = "input.chart1 == '1'",
+                     plotOutput("hist3", height = 400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart1 == '2'",
+                     DTOutput("tb3", height = 400)
+                   )
                )
              ),
              fluidRow(
                box(title = "UIC-Halsted for each day of the week for 2021", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist4", height=400)
+                   conditionalPanel(
+                     condition = "input.chart1 == '1'",
+                     plotOutput("hist4", height = 400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart1 == '2'",
+                     DTOutput("tb4", height = 400)
+                   )
                )
              ),
       ),
       column(3,
              fluidRow(
                box(title = "O'hare Entries from 2001-2021", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist5", height=400),
+                   conditionalPanel(
+                     condition = "input.chart2 == '1'",
+                     plotOutput("hist5", height=400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart2 == '2'",
+                     DTOutput("tb5", height=400)
+                   )
                )
              ),
              fluidRow(
                box(title = "O'hare each day for 2021 ", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist6", height=400)
+                   conditionalPanel(
+                     condition = "input.chart2 == '1'",
+                     plotOutput("hist6", height=400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart2 == '2'",
+                     DTOutput("tb6", height=400)
+                   )
                )
              ),
       ),
       column(3,
              fluidRow(
                box(title = "O'hare for each month for 2021", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist7", height=400)
+                   conditionalPanel(
+                     condition = "input.chart2 == '1'",
+                     plotOutput("hist7", height=400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart2 == '2'",
+                     DTOutput("tb7", height=400)
+                   )
                )
              ),
              fluidRow(
                box(title = "O'hare each day of the week for 2021 ", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist8", height=400)
+                   conditionalPanel(
+                     condition = "input.chart2 == '1'",
+                     plotOutput("hist8", height=400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart2 == '2'",
+                     DTOutput("tb8", height=400)
+                   )
                )
              ),
       ),
@@ -328,7 +370,7 @@ server <- function(input, output) {
       })
     
     output$tb1 = renderDT(
-      df1, options = list(lengthChange = FALSE)
+      df1, options  = list(lengthMenu = c(7,7))
     )
     
     # output$dt1 <- renderPlot({
@@ -377,7 +419,7 @@ server <- function(input, output) {
       
       df3 <- data.frame(
         Months = months,
-        Months_no = months_no,
+        #Months_no = months_no,
         Entries = c(0)
       )
       df3$Months <- factor(df3$Months, levels = month.abb)
@@ -390,11 +432,12 @@ server <- function(input, output) {
         #sum(dfUICHalsted$rides)
         sumEntries <- sum(ny1Subset$rides)
         #print(sumEntries)
-        df3[m3,3] = sumEntries
+        df3[m3,2] = sumEntries
         #print(df1[m,2])
         m3=m3+1
       }
-      df3
+      datatable(df3,options  = list(lengthMenu = c(7,7)))
+      #df3 options  = list(lengthMenu = c(6,6))
     })
     
     output$hist3 <- renderPlot({
@@ -421,6 +464,27 @@ server <- function(input, output) {
      # ggplot(ny1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
     
+    output$tb3 = renderDT({
+      ny1 <- justOneYearReactive1()
+      
+      df4 <- data.frame(
+        Weekday = weekday_list,
+        Entries = c(0)
+      )
+      df4$Weekday <- factor(df4$Weekday, levels = weekday_list, labels = c("Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"))
+      m4 = 1
+      for(i in weekday_list) {
+        weekday1Subset <- subset(ny1, weekday == i)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(weekday1Subset$rides)
+        df4[m4,2] = sumEntries
+        m4=m4+1
+      }
+      #df4 
+      datatable(df4,options  = list(lengthMenu = c(7,7)))
+      
+    })
+    
     output$hist4 <- renderPlot({
       #newYears <-  justOneYearReactive()
       ny1 <- justOneYearReactive1()
@@ -428,6 +492,18 @@ server <- function(input, output) {
       
       titlePlot <- paste("Entries in throughout the year for", ny1$stationname, "in", ny1$year, sep = " ")
       ggplot(ny1, aes(x=date, y=rides))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Throughout Year", title=titlePlot)+scale_y_continuous(labels=comma)
+    })
+    
+    output$tb4 = renderDT({
+      ny1 <- justOneYearReactive1()
+      
+      df4 <- data.frame(
+        Day = ny1$date,
+        Entries = ny1$rides
+      )
+      datatable(df4,options  = list(lengthMenu = c(7,7)))
+      
+      
     })
     
     output$hist5 <- renderPlot({
@@ -442,7 +518,7 @@ server <- function(input, output) {
     })
     
     output$tb5 = renderDT(
-      df2, options = list(lengthChange = FALSE)
+      df2,  options  = list(lengthMenu = c(7,7))
     )
     
     
@@ -475,6 +551,33 @@ server <- function(input, output) {
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
+    
+    output$tb6 = renderDT({
+      ny1 <- justOneYearReactive2()
+      
+      
+      df3 <- data.frame(
+        Months = months,
+        #Months_no = months_no,
+        Entries = c(0)
+      )
+      df3$Months <- factor(df3$Months, levels = month.abb)
+      
+      
+      m3 = 1
+      for(i in months_no) {
+        ny1Subset <- subset(ny1, month == i)
+        #print(ny1Subset)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(ny1Subset$rides)
+        #print(sumEntries)
+        df3[m3,2] = sumEntries
+        #print(df1[m,2])
+        m3=m3+1
+      }
+      datatable(df3,options  = list(lengthMenu = c(7,7)))
+      #df3 options  = list(lengthMenu = c(6,6))
+    })
 
     output$hist7 <- renderPlot({
       #newYears <-  justOneYearReactive()
@@ -501,6 +604,27 @@ server <- function(input, output) {
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
+    
+    output$tb7 = renderDT({
+      ny1 <- justOneYearReactive2()
+      
+      df4 <- data.frame(
+        Weekday = weekday_list,
+        Entries = c(0)
+      )
+      df4$Weekday <- factor(df4$Weekday, levels = weekday_list, labels = c("Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"))
+      m4 = 1
+      for(i in weekday_list) {
+        weekday1Subset <- subset(ny1, weekday == i)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(weekday1Subset$rides)
+        df4[m4,2] = sumEntries
+        m4=m4+1
+      }
+      #df4 
+      datatable(df4,options  = list(lengthMenu = c(7,7)))
+      
+    })
 
     output$hist8 <- renderPlot({
       #newYears <-  justOneYearReactive()
@@ -511,6 +635,18 @@ server <- function(input, output) {
       
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+ scale_y_continuous(limits=c(1100000,4553704),oob = rescale_none)
+    })
+    
+    output$tb8 = renderDT({
+      ny1 <- justOneYearReactive2()
+      
+      df4 <- data.frame(
+        Day = ny1$date,
+        Entries = ny1$rides
+      )
+      datatable(df4,options  = list(lengthMenu = c(7,7)))
+      
+      
     })
 }
 
