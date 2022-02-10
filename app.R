@@ -16,7 +16,6 @@ library(jpeg)
 library(grid)
 library(leaflet)
 library(scales)
-library(DT)
 
 require(scales)
 options(scipen=10000)
@@ -203,12 +202,26 @@ ui <- dashboardPage(
       column(3,
              fluidRow(
                box(title = "UIC-Halsted Entries from 2001-2021", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist1", height=400)
+                   conditionalPanel(
+                     condition = "input.chart1 == '1'",
+                     plotOutput("hist1", height=400)
                )
+               , conditionalPanel(
+                 condition = "input.chart1 == '2'",
+                 DTOutput("tb1", height=400)
+               )
+              )
              ),
              fluidRow(
                box(title = "UIC-Halsted each day for 2021 ", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist2", height=400)
+                   conditionalPanel(
+                     condition = "input.chart1 == '1'",
+                     plotOutput("hist2", height = 400)
+                   )
+                   , conditionalPanel(
+                     condition = "input.chart1 == '2'",
+                     DTOutput("tb2", height = 400)
+                   )
                )
              ),
       ),
@@ -227,7 +240,7 @@ ui <- dashboardPage(
       column(3,
              fluidRow(
                box(title = "O'hare Entries from 2001-2021", solidHeader = TRUE, status = "primary", width = 12,
-                   plotOutput("hist5", height=400)
+                   plotOutput("hist5", height=400),
                )
              ),
              fluidRow(
@@ -249,6 +262,7 @@ ui <- dashboardPage(
              ),
       ),
     )
+  
   )
 )
 
@@ -307,12 +321,25 @@ server <- function(input, output) {
     output$hist1 <- renderPlot({
       #newYears <-  justOneYearReactive()
       if(input$select1 == 1) {
-        ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+          ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
       } else {
-        # require(scales)
-        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in O'hare Airport from 2001-2021")+scale_y_continuous(labels=comma)
-      }
+          ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in O'hare Airport from 2001-2021")+scale_y_continuous(labels=comma)
+        } 
       })
+    
+    output$tb1 = renderDT(
+      df1, options = list(lengthChange = FALSE)
+    )
+    
+    # output$dt1 <- renderPlot({
+    #   #newYears <-  justOneYearReactive()
+    #   if(input$select1 == 1) {
+    #     datatable(df1)
+    #   } else {
+    #     # require(scales)
+    #     datatable(df2)
+    #     }
+    # })
     
     
     output$hist2 <- renderPlot({
@@ -342,6 +369,32 @@ server <- function(input, output) {
         ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Months", title=titlePlot)+scale_y_continuous(labels=comma)
         
         
+    })
+    
+    output$tb2 = renderDT({
+      ny1 <- justOneYearReactive1()
+      
+      
+      df3 <- data.frame(
+        Months = months,
+        Months_no = months_no,
+        Entries = c(0)
+      )
+      df3$Months <- factor(df3$Months, levels = month.abb)
+      
+      
+      m3 = 1
+      for(i in months_no) {
+        ny1Subset <- subset(ny1, month == i)
+        #print(ny1Subset)
+        #sum(dfUICHalsted$rides)
+        sumEntries <- sum(ny1Subset$rides)
+        #print(sumEntries)
+        df3[m3,3] = sumEntries
+        #print(df1[m,2])
+        m3=m3+1
+      }
+      df3
     })
     
     output$hist3 <- renderPlot({
@@ -388,6 +441,10 @@ server <- function(input, output) {
       #ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
     
+    output$tb5 = renderDT(
+      df2, options = list(lengthChange = FALSE)
+    )
+    
     
     output$hist6 <- renderPlot({
       #newYears <-  justOneYearReactive()
@@ -413,7 +470,7 @@ server <- function(input, output) {
       }
       
       titlePlot <- paste("Entries in Months for", ny1$stationname, "in", ny1$year, sep = " ")
-      ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Monthsr", title=titlePlot)+scale_y_continuous(labels=comma)
+      ggplot(df3, aes(x=Months, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Months", title=titlePlot)+scale_y_continuous(labels=comma)
         
       #ny2 <- justOneYearReactive2()
       #ggplot(ny2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
