@@ -117,8 +117,8 @@ ui <- dashboardPage(
   # ),
   # dashboardBody(),
   dashboardBody(
-    tabsetPanel(
-    tabPanel("Home",
+    # tabsetPanel(
+    # tabPanel("Home",
     fluidRow(
     column(12,
            h1("CTA Entries comparison between Stations from 2001-2021"),
@@ -305,15 +305,20 @@ ui <- dashboardPage(
                )
              ),
       ),
+    ),fluidRow(
+    column(3,
+           radioButtons("radio", h2("Pages"),
+                        choices = list("Home" = 1, "Info" = 2),selected = 1)),
+    )
     ),
-    ),
-    tabPanel("Info",
-             column(6,
-                    h3("Hello World I..............$................$...................$........................."),
-             )
-             )
-  )
-  )
+    # tabPanel("Info",
+    #          column(6,
+    #                 h3("Hello World I..............$................$...................$........................."),
+    #          )
+    #          )
+  # )
+  # )
+  
 )
 
 # Define server logic required to draw a histogram
@@ -654,6 +659,13 @@ server <- function(input, output) {
       )
       datatable(df4,options  = list(lengthMenu = c(7,7)))
       
+      
+    })
+    
+    output$Info <- renderUI({
+      column(6,
+      h3("Hello World ......$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+      )
       
     })
 }
