@@ -67,7 +67,7 @@ for(i in yearList) {
   m1=m1+1
 }
 
-pages <- c("Home","About")
+pages <- c("Home","About Page")
 
 m2 = 1
 for(i in yearList) {
@@ -310,9 +310,10 @@ ui <- dashboardPage(
     ),
   ),
     conditionalPanel(
-      condition = "input.page1 == 'About'",
-      column(6,
-             h3("Hello World ......$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+      condition = "input.page1 == 'About Page'",
+      column(12,
+             h3("The data is from City of Chicago https://www.evl.uic.edu/aej/424/22Sproject1.html#:~:text=https%3A//data.cityofchicago.org/Transportation/CTA%2DRidership%2DL%2DStation%2DEntries%2DDaily%2DTotals/5neh%2D572f
+                and the app is made by Soel Mullenkuzhiyil Sunny last updated on 02/12/2022 and was made to compare the CTA entries between O'hare Airport, UIC-Halsted and Dempster stops.")
       )
     ),
     ),
@@ -492,7 +493,7 @@ server <- function(input, output) {
       #newYears <-  justOneYearReactive()
       #ny2 <- justOneYearReactive2()
       if(input$select2 == 2) {
-        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in O'Hare Airpor from 2001-2021")+scale_y_continuous(labels=comma)
+        ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in O'Hare Airport from 2001-2021")+scale_y_continuous(labels=comma)
       } else if(input$select2 == 1) {
         ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
       } else {
