@@ -41,6 +41,7 @@ allData$weekday <- weekdays(allData$date)
 
 dfUICHalsted <- subset(allData, stationname == "UIC-Halsted")
 dfOhare <- subset(allData, stationname == "O'Hare Airport")
+dfDempster <- subset(allData, stationname == "Dempster")
 
 yearList = c(2001:2021)
 df1 <- data.frame(
@@ -48,6 +49,10 @@ df1 <- data.frame(
   Entries = c(0)
 )
 df2 <- data.frame(
+  Year = yearList,
+  Entries = c(0)
+)
+dk1 <- data.frame(
   Year = yearList,
   Entries = c(0)
 )
@@ -62,6 +67,8 @@ for(i in yearList) {
   m1=m1+1
 }
 
+pages <- c("Home","About")
+
 m2 = 1
 for(i in yearList) {
   dfOharesub <- subset(dfOhare, year == i)
@@ -72,53 +79,48 @@ for(i in yearList) {
   m2=m2+1
 }
 
+d1 = 1
+for(i in yearList) {
+  dfDempstersub <- subset(dfDempster, year == i)
+  #sum(dfUICHalsted$rides)
+  sumEntries <- sum(dfDempstersub$rides)
+  dk1[d1,2] = sumEntries
+  #print(df1[m,2])
+  d1=d1+1
+}
+
 months <- month.abb
 months_no <- c(1:12)
 weekday_list <- c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
 
 
 
-# Define UI for application that draws a histogram
-# ui <- fluidPage(
-# 
-#     # Application title
-#     titlePanel("Old Faithful Geyser Data"),
-# 
-#     # Sidebar with a slider input for number of bins
-#     sidebarLayout(
-#         sidebarPanel(
-#             sliderInput("bins",
-#                         "Number of bins:",
-#                         min = 1,
-#                         max = 50,
-#                         value = 30)
-#         ),
-# 
-#         # Show a plot of the generated distribution
-#         mainPanel(
-#            plotOutput("hist1")
-#         )
-#     )
-# )
-
 ui <- dashboardPage(
   dashboardHeader(title = "CS 424 Spring 2022 Project 1"),
-  dashboardSidebar(collapsed = TRUE),
-  # dashboardSidebar(disable = FALSE, collapsed = FALSE,
-  # 
-  #                  sidebarMenu(
-  #                    menuItem("", tabName = "cheapBlankSpace", icon = NULL),
-  #                    menuItem("", tabName = "cheapBlankSpace", icon = NULL),
-  #                    menuItem("", tabName = "cheapBlankSpace", icon = NULL),
-  #                    menuItem("", tabName = "cheapBlankSpace", icon = NULL),
-  #                    menuItem("", tabName = "cheapBlankSpace", icon = NULL)),
-  # 
-  #                  selectInput("Year", "Select the year to visualize", years, selected = 2021),
-  # ),
-  # dashboardBody(),
+  # dashboardSidebar(),
+  dashboardSidebar(disable = FALSE, collapsed = FALSE,
+                   
+                   sidebarMenu(
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL),
+                     menuItem("", tabName = "cheapBlankSpace", icon = NULL)),
+                   
+                   selectInput("page1", "Select the page", pages, selected = "Home")
+                   #selectInput("Room7", "Select the room to visualize", listNamesGood, selected = "Machine Room")
+                   
+  ),
   dashboardBody(
-    # tabsetPanel(
-    # tabPanel("Home",
+    conditionalPanel(
+      condition = "input.page1 == 'Home'",
+      
     fluidRow(
     column(12,
            h1("CTA Entries comparison between Stations from 2001-2021"),
@@ -164,7 +166,7 @@ ui <- dashboardPage(
       column(2,
              selectInput("select1", h3("Select Station 1"), 
                          choices = list("UIC-Halsted" = 1, "O'hare Airport" = 2,
-                                        "Choice 3" = 3), selected = 1)
+                                        "Dempster" = 3), selected = 1)
       ),
       column(2,
              selectInput("chart2", h3("Select Chart type"), 
@@ -197,7 +199,7 @@ ui <- dashboardPage(
       column(2,
              selectInput("select2", h3("Select Station 2"),
                          choices = list("UIC-Halsted" = 1, "O'hare Airport" = 2,
-                                        "Choice 3" = 3), selected = 2)
+                                        "Dempster" = 3), selected = 2)
       ),
     ),
     fluidRow(
@@ -305,46 +307,29 @@ ui <- dashboardPage(
                )
              ),
       ),
-    ),fluidRow(
-    column(3,
-           radioButtons("radio", h2("Pages"),
-                        choices = list("Home" = 1, "Info" = 2),selected = 1)),
-    )
     ),
-    # tabPanel("Info",
-    #          column(6,
-    #                 h3("Hello World I..............$................$...................$........................."),
-    #          )
-    #          )
-  # )
-  # )
-  
+  ),
+    conditionalPanel(
+      condition = "input.page1 == 'About'",
+      column(6,
+             h3("Hello World ......$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+      )
+    ),
+    ),
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-  #theme_set(theme_grey(base_size = 14)) 
-
-
-    # output$distPlot <- renderPlot({
-    #     # generate bins based on input$bins from ui.R
-    #     x    <- faithful[, 2]
-    #     bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    # 
-    #     # draw the histogram with the specified number of bins
-    #     hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    # })
-    
-    # justOneYearReactive1 <- reactive({subset(allData, allData$year == input$Year1 & allData$stationname ==  "UIC-Halsted")})
-    # justOneYearReactive2 <- reactive({subset(allData, allData$year == input$Year2 & allData$stationname == "O'Hare Airport")})
   
   justOneYearReactive1 <- reactive({
     nameOfPlace = "UIC-Halsted"
     if(input$select1 == 1){
       nameOfPlace = "UIC-Halsted"
-    } else {
+    } else if(input$select1 == 2) {
       nameOfPlace = "O'Hare Airport"
+    } else {
+      nameOfPlace = "Dempster"
     }
    # print(nameOfPlace)
     subset(allData, allData$year == input$Year1 & allData$stationname == nameOfPlace)
@@ -353,48 +338,32 @@ server <- function(input, output) {
     nameOfPlace = "O'Hare Airport"
     if(input$select2 == 2){
       nameOfPlace = "O'Hare Airport"
-    } else {
+    } else if(input$select2 == 2) {
       nameOfPlace = "UIC-Halsted"
+    } else {
+      nameOfPlace = "Dempster"
     }
    # print(nameOfPlace)
     subset(allData, allData$year == input$Year2 & allData$stationname == nameOfPlace)
     })
   
-  # justOneYearReactive3 <- reactive({
-  #   nameOfPlace = "O'Hare Airport"
-  #   if(input$select2 == 2){
-  #     nameOfPlace = "O'Hare Airport"
-  #   } else {
-  #     nameOfPlace = "UIC-Halsted"
-  #   }
-  #   # print(nameOfPlace)
-  #   subset(allData, allData$year == input$Year2 & allData$stationname == nameOfPlace)
-  # })
   
   
-
     output$hist1 <- renderPlot({
       #newYears <-  justOneYearReactive()
       if(input$select1 == 1) {
           ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
-      } else {
+      } else if(input$select1 == 2) {
           ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in O'Hare Airport from 2001-2021")+scale_y_continuous(labels=comma)
-        } 
+      } else {
+        ggplot(dk1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in Dempster from 2001-2021")+scale_y_continuous(labels=comma)
+        }
       })
     
     output$tb1 = renderDT(
       df1, options  = list(lengthMenu = c(7,7))
     )
     
-    # output$dt1 <- renderPlot({
-    #   #newYears <-  justOneYearReactive()
-    #   if(input$select1 == 1) {
-    #     datatable(df1)
-    #   } else {
-    #     # require(scales)
-    #     datatable(df2)
-    #     }
-    # })
     
     
     output$hist2 <- renderPlot({
@@ -524,8 +493,10 @@ server <- function(input, output) {
       #ny2 <- justOneYearReactive2()
       if(input$select2 == 2) {
         ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in O'Hare Airpor from 2001-2021")+scale_y_continuous(labels=comma)
-      } else {
+      } else if(input$select2 == 1) {
         ggplot(df1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")+scale_y_continuous(labels=comma)
+      } else {
+        ggplot(dk1, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#eb6363")+labs(y = "Total Entries", x="Year", title="Entries in Dempster from 2001-2021")+scale_y_continuous(labels=comma)
       }
       #ggplot(df2, aes(x=Year, y=Entries))+geom_bar(stat="identity", fill="#1f78b4")+labs(y = "Total Entries", x="Year", title="Entries in UIC-Halsted from 2001-2021")
     })
@@ -662,12 +633,6 @@ server <- function(input, output) {
       
     })
     
-    output$Info <- renderUI({
-      column(6,
-      h3("Hello World ......$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-      )
-      
-    })
 }
 
 # Run the application 
